@@ -1,0 +1,438 @@
+<?php
+
+?>
+<div>
+    <h3>Liste de Projets</h3>
+</div>
+<a data-toggle="modal" href="#ajouter" class="btn btn-default btn-success btn-md"><span class="glyphicon glyphicon-plus"></span> add Projet</a>
+<div class="container tableau">
+    <div class="row tableau">
+        <div class="col-xs-12 tableau">
+            <?php if (isset($projets)) : ?>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th class="col-sm-2">Titre</th>
+                        <th class="col-sm-4">Description</th>
+                        <th class="col-sm-1">Début</th>
+                        <th class="col-sm-1">Fin</th>
+                        <th class="col-sm-1">Status</th>
+                        <th class="col-sm-2">Chef</th>
+                        <th class="col-sm-1">Outil</th>
+                    </tr>
+                </thead>
+                <?php foreach ($projets as $projet): ?>
+                <?php   $datejour = date('d-m-Y');
+                $dateProjet=$projet->getDate_debut_projet()->format('d-m-Y');                            
+                $dprojet = explode("-", $dateProjet);                                        
+                $djour = explode("-", $datejour);    
+                $finab = $dprojet[2].$dprojet[1].$dprojet[0];        
+                $auj = $djour[2].$djour[1].$djour[0];                            
+                if ($auj>=$finab)
+                {
+                   ?>
+                   <tbody>
+                    <tr>                         
+                        <td><a href="<?php echo $this->url('projet', array('action' => 'voirProjet', 'idprojet' => $projet->getId_projet())); ?>"><?php echo $projet->getTitre_projet(); ?></a></td>
+                        <td><?php echo $projet->getDescription_projet(); ?></td>
+                        <td><?php echo $projet->getDate_debut_projet()->format('d-m-Y'); ?></td>
+                        <td><?php echo $projet->getDate_fin_projet()->format('d-m-Y'); ?></td>                                                                                    
+                        <td>
+                            <?php
+
+
+                            foreach ($status as $statu)
+                            {
+                                if ($projet->getId_status() === $statu->getId_status())
+                                {
+                                    $id_status = $projet->getId_status();
+                                    $libelle = $statu->getLibelle_status();
+                                    echo $libelle;
+                                }
+                            }
+
+                            ?>
+                        </td>
+                        <td>
+                            <?php
+
+
+                            foreach ($users as $user)
+                            {
+                                if ($projet->getUser_id() === $user->getId())
+                                {
+                                    $id_user = $projet->getUser_id();
+                                    $display_name_user = $user->getDisplayName();
+                                    echo $display_name_user;
+                                }
+                            }
+
+                            ?>
+                        </td>
+
+                        
+                            <?php if((!empty($id_userco)) && ($id_userco === $id_user)){ ?>
+                            <td style="text-align:center;">
+
+                            <button data-toggle="modal" href="<?php echo $this->url('projet', array('action' => 'editProjet', 'idprojet' => $projet->getId_projet())); ?>" data-target="#infos"class="btn btn-default btn-sm btn-warning btn-block"><span class="glyphicon glyphicon-pencil"></span>Modifier</button>
+                            
+                            <button data-toggle="modal" href="<?php echo $this->url('projet', array('action' => 'deleteProjet', 'idprojet' => $projet->getId_projet())); ?>" data-target="#infos"class="btn btn-default btn-sm btn-danger btn-block"><span class="glyphicon glyphicon-trash"></span> Supprimer</button>    
+                        </td>
+                            <?php }
+                            else
+                            {
+                                ?>
+                                    <td style="text-align:center; background-color: lightgrey;">
+                                        <p>Aucun outils disponible</p>
+                                    </td>                                
+                                <?php
+                            } ?>                                                            
+                        </td>                            
+                    </tr>                                                   
+                </tbody>                                        
+                <?php }?>
+            <?php endforeach; ?>
+        </table>
+    <?php endif; ?>
+</div> <!-- Fin collone Tableau -->
+</div> <!-- Fin Row Tableau -->
+</div> <!-- Fin div containeur Tableau -->
+
+<div class="modal fade" id="ajouter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Ajouter un Projet</h4>
+            </div>
+            <div class="modal-body">
+                <form name='addProjet' method="POST" action="<?php echo $this->url('projet', array('action' => 'addProjet', true)); ?>" role="form" class="form-horizontal">                                        
+                    <div class="form-group">
+                        <label for="titre_projet" class="col-sm-2">Titre: </label>                            
+                        <div class="col-sm-10">
+                            <input type="text" name="titre_projet" class="form-control" placeholder="Titre du projet...">
+                        </div>                                                                
+                    </div>                            
+                    <div class="form-group">
+                        <label for="description_projet" class="col-sm-2">Description:</label>
+                        <div class="col-sm-10">                            
+                            <textarea name="description_projet"  class="form-control" rows="2" placeholder="Courte description du projet..."></textarea>
+                        </div>                 
+                    </div>
+                    <div class="form-group">
+                        <label for="date_debut_projet" class="col-sm-2">Début:</label>                                     
+                        <div class="col-sm-10">
+                            <input type="date" class="form-control" id="date_debut_projet" name="date_debut_projet" data-provide="datepicker"><br>
+                        </div>                 
+                    </div>
+                    <div class="form-group">
+                        <label for="date_fin_projet" class="col-sm-2 control-label">Date Fin:</label>
+                        <div class="col-sm-10">
+                              <input type="date" class="form-control" id="date_fin_projet" name="date_fin_projet" data-provide="datepicker"><br>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>                    
+            </form>                    
+        </div>
+    </div>
+</div>
+<div id="infos" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onClick="window.location.reload()" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Chargement...</h4>                
+            </div>
+            <div class="modal-body">
+                <style>
+                #followingBallsG{
+                    position:relative;
+                    width:256px;
+                    height:20px;
+                }
+
+                .followingBallsG{
+                    background-color:#29BCCF;
+                    position:absolute;
+                    top:0;
+                    left:0;
+                    width:20px;
+                    height:20px;
+                    -moz-border-radius:10px;
+                    -moz-animation-name:bounce_followingBallsG;
+                    -moz-animation-duration:2.6s;
+                    -moz-animation-iteration-count:infinite;
+                    -moz-animation-direction:linear;
+                    -webkit-border-radius:10px;
+                    -webkit-animation-name:bounce_followingBallsG;
+                    -webkit-animation-duration:2.6s;
+                    -webkit-animation-iteration-count:infinite;
+                    -webkit-animation-direction:linear;
+                    -ms-border-radius:10px;
+                    -ms-animation-name:bounce_followingBallsG;
+                    -ms-animation-duration:2.6s;
+                    -ms-animation-iteration-count:infinite;
+                    -ms-animation-direction:linear;
+                    -o-border-radius:10px;
+                    -o-animation-name:bounce_followingBallsG;
+                    -o-animation-duration:2.6s;
+                    -o-animation-iteration-count:infinite;
+                    -o-animation-direction:linear;
+                    border-radius:10px;
+                    animation-name:bounce_followingBallsG;
+                    animation-duration:2.6s;
+                    animation-iteration-count:infinite;
+                    animation-direction:linear;
+                }
+
+                #followingBallsG_1{
+                    -moz-animation-delay:0s;
+                }
+
+                #followingBallsG_1{
+                    -webkit-animation-delay:0s;
+                }
+
+                #followingBallsG_1{
+                    -ms-animation-delay:0s;
+                }
+
+                #followingBallsG_1{
+                    -o-animation-delay:0s;
+                }
+
+                #followingBallsG_1{
+                    animation-delay:0s;
+                }
+
+                #followingBallsG_2{
+                    -moz-animation-delay:0.26s;
+                    -webkit-animation-delay:0.26s;
+                    -ms-animation-delay:0.26s;
+                    -o-animation-delay:0.26s;
+                    animation-delay:0.26s;
+                }
+
+                #followingBallsG_3{
+                    -moz-animation-delay:0.52s;
+                    -webkit-animation-delay:0.52s;
+                    -ms-animation-delay:0.52s;
+                    -o-animation-delay:0.52s;
+                    animation-delay:0.52s;
+                }
+
+                #followingBallsG_4{
+                    -moz-animation-delay:0.78s;
+                    -webkit-animation-delay:0.78s;
+                    -ms-animation-delay:0.78s;
+                    -o-animation-delay:0.78s;
+                    animation-delay:0.78s;
+                }
+
+                @-moz-keyframes bounce_followingBallsG{
+                    0%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                    50%{
+                        left:236px;
+                        background-color:#FFFFFF;
+                    }
+
+                    100%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                }
+
+                @-webkit-keyframes bounce_followingBallsG{
+                    0%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                    50%{
+                        left:236px;
+                        background-color:#FFFFFF;
+                    }
+
+                    100%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                }
+
+                @-ms-keyframes bounce_followingBallsG{
+                    0%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                    50%{
+                        left:236px;
+                        background-color:#FFFFFF;
+                    }
+
+                    100%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                }
+
+                @-o-keyframes bounce_followingBallsG{
+                    0%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                    50%{
+                        left:236px;
+                        background-color:#FFFFFF;
+                    }
+
+                    100%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                }
+
+                @keyframes bounce_followingBallsG{
+                    0%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                    50%{
+                        left:236px;
+                        background-color:#FFFFFF;
+                    }
+
+                    100%{
+                        left:0px;
+                        background-color:#29BCCF;
+                    }
+
+                }
+
+                </style>
+                <div id="followingBallsG">
+                    <div id="followingBallsG_1" class="followingBallsG">
+                    </div>
+                    <div id="followingBallsG_2" class="followingBallsG">
+                    </div>
+                    <div id="followingBallsG_3" class="followingBallsG">
+                    </div>
+                    <div id="followingBallsG_4" class="followingBallsG">
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/calendar.css">
+
+    <style type="text/css">
+        .btn-twitter {
+            padding-left: 30px;
+            background: rgba(0, 0, 0, 0) url(https://platform.twitter.com/widgets/images/btn.27237bab4db188ca749164efd38861b0.png) -20px 9px no-repeat;
+        }
+        .btn-twitter:hover {
+            background-position:  -21px -16px;
+        }
+    </style>
+<div class="page-header">
+        <div class="pull-right form-inline">
+            <div class="btn-group">
+                <button class="btn btn-primary" data-calendar-nav="prev"><< Prev</button>
+                <button class="btn btn-default" data-calendar-nav="today">Today</button>
+                <button class="btn btn-primary" data-calendar-nav="next">Next >></button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-warning" data-calendar-view="year">Year</button>
+                <button class="btn btn-warning active" data-calendar-view="month">Month</button>
+                <button class="btn btn-warning" data-calendar-view="week">Week</button>
+                <button class="btn btn-warning" data-calendar-view="day">Day</button>
+            </div>
+        </div>
+
+        <h3></h3>
+        <small>Afficher les tâches</small>
+    </div>
+
+<div class="row">
+        <div class="col-md-9">
+            <div id="calendar"></div>
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <select id="first_day" class="form-control">
+                    <option value="" selected="selected">First day of week language-dependant</option>
+                    <option value="2">First day of week is Sunday</option>
+                    <option value="1">First day of week is Monday</option>
+                </select>
+                <select id="language" class="form-control">
+                    <option value="">Select Language (default: en-US)</option>
+                    <option value="nl-NL">Dutch</option>
+                    <option value="fr-FR">French</option>
+                    <option value="de-DE">German</option>
+                    <option value="el-GR">Greek</option>
+                    <option value="it-IT">Italian</option>
+                    <option value="pl-PL">Polish</option>
+                    <option value="pt-BR">Portuguese (Brazil)</option>
+                    <option value="es-MX">Spanish (Mexico)</option>
+                    <option value="es-ES">Spanish (Spain)</option>
+                    <option value="ru-RU">Russian</option>
+                    <option value="sv-SE">Swedish</option>
+                </select>
+                <label class="checkbox">
+                    <input type="checkbox" value="#events-modal" id="events-in-modal"> Open events in modal window
+                </label>
+            </div>
+
+            <h4>Events</h4>
+            <small>This list is populated with events dynamically</small>
+            <ul id="eventlist" class="nav nav-list"></ul>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <br><br>
+    <div id="disqus_thread"></div>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+    <div class="modal fade" id="events-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Event</h4>
+                </div>
+                <div class="modal-body" style="height: 400px">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+    <script type="text/javascript">
+        $('#calendar').calendar({
+    events_source: function(){return [];}
+})
+    </script>
+
+    
