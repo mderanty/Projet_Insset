@@ -1,0 +1,46 @@
+<h1>Connexion</h1>
+
+<?php
+$form = $this->loginForm;
+$form->prepare();
+$form->setAttribute('action', $this->url('zfcuser/login'));
+$form->setAttribute('method', 'post');
+?>
+
+<?php echo $this->form()->openTag($form) ?>
+
+<dl class="form-horizontal">
+    <?php echo $this->formElementErrors($form->get('identity')) ?>
+    <div class="form-group">
+        <div class="col-sm-1">
+            <dt><?php echo $this->formLabel($form->get('identity')) ?></dt>
+        </div>
+        
+        <div class="col-sm-2">
+            <dd><?php echo $this->formInput($form->get('identity')) ?></dd>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-1">
+            <dt><?php echo $this->formLabel($form->get('credential')) ?></dt>
+        </div>
+        <div class="col-sm-2">
+            <dd><?php echo $this->formInput($form->get('credential')) ?></dd>
+        </div>
+    </div>
+    <?php if ($this->redirect): ?>
+    <input type="hidden" name="redirect" value="<?php echo $this->escapeHtml($this->redirect) ?>" />
+<?php endif ?>
+
+<dd><?php echo $this->formButton($form->get('submit')) ?></dd>
+</dl>
+
+<?php echo $this->form()->closeTag() ?>
+
+<?php if ($this->enableRegistration) : ?>
+    Pas encore enregistrer? <a href="<?php echo $this->url('zfcuser/register') . ($this->redirect ? '?redirect='.$this->redirect : '') ?>">Enregistrement!</a>
+<?php endif; ?>
+
+
+
+
